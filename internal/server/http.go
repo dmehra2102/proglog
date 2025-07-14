@@ -80,7 +80,7 @@ func (h *httpServer) handleProduce(w http.ResponseWriter, r *http.Request){
 		http.Error(w,err.Error(),http.StatusInternalServerError)
 		return
 	}
-	
+
 	res := ProductResponse{Offset: offset}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
