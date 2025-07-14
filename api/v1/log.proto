@@ -8,3 +8,26 @@ message Record {
     bytes value = 1;
     uint64 offset = 2;
 }
+
+message ProductRequest {
+    Record record = 1;
+}
+
+message ProductResponse {
+    uint64 offset = 1;
+}
+
+message ConsumeRequest {
+    uint64 offset = 1;
+}
+
+message ConsumeResponse {
+    Record record = 2;
+}
+
+service Log {
+    rpc Produce(ProductRequest) returns (ProductResponse) {}
+    rpc Consume(ConsumeRequest) returns (ProductResponse) {}
+    rpc ProduceStream(stream ProductRequest) returns (stream ProductResponse) {}
+    rpc ConsumeStream(stream ConsumeRequest) returns (stream ConsumeResponse) {}
+}
