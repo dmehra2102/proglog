@@ -7,14 +7,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewHTTPServer(addr string)*http.Server{
+func NewHTTPServer(addr string) *http.Server {
 	httpsrv := newHTTPServer()
 	r := mux.NewRouter()
-	r.HandleFunc("/",httpsrv.handleProduce).Methods("POST")
-	r.HandleFunc("/",httpsrv.handleConsume).Methods("GET")
+	r.HandleFunc("/", httpsrv.handleProduce).Methods("POST")
+	r.HandleFunc("/", httpsrv.handleConsume).Methods("GET")
 
 	return &http.Server{
-		Addr: addr,
+		Addr:    addr,
 		Handler: r,
 	}
 }
@@ -23,9 +23,9 @@ type httpServer struct {
 	Log *Log
 }
 
-func newHTTPServer()*httpServer{
+func newHTTPServer() *httpServer {
 	return &httpServer{
-		Log : NewLog(),
+		Log: NewLog(),
 	}
 }
 
@@ -45,15 +45,15 @@ type ConsumeResponse struct {
 	Record Record `json:"record"`
 }
 
-func (h *httpServer) handleConsume(w http.ResponseWriter, r *http.Request){
+func (h *httpServer) handleConsume(w http.ResponseWriter, r *http.Request) {
 	var req ConsumeRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w,err.Error(),http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	record,err := h.Log.Read(req.Offset)
+	record, err := h.Log.Read(req.Offset)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -67,24 +67,24 @@ func (h *httpServer) handleConsume(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func (h *httpServer) handleProduce(w http.ResponseWriter, r *http.Request){
+func (h *httpServer) handleProduce(w http.ResponseWriter, r *http.Request) {
 	var req ProduceRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w,err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	offset,err := h.Log.Append(req.Record)
+	offset, err := h.Log.Append(req.Record)
 	if err != nil {
-		http.Error(w,err.Error(),http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	res := ProductResponse{Offset: offset}
 	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
-		http.Error(w,err.Error(),http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
